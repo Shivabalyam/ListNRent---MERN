@@ -32,8 +32,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public'))); // For serving images if needed
-const cors = require("cors");
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+const cors = require('cors');
+app.use(cors({
+  origin: ['https://list-n-rent.vercel.app', 'http://localhost:3000'],
+  credentials: true
+}));
 
 
 
