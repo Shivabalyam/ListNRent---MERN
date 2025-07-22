@@ -30,7 +30,7 @@ module.exports.signup = async (req, res) => {
     const user = new User({ username, email, password }); // role not settable from frontend
     await user.save();
     const token = createToken(user);
-    res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
+    res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
     res.status(201).json({
       message: 'Signup successful',
       user: { _id: user._id, username, email, role: user.role }
@@ -62,7 +62,7 @@ module.exports.login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials (password mismatch)' });
     }
     const token = createToken(user);
-    res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
+    res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
     res.json({
       message: 'Login successful',
       user: { _id: user._id, username: user.username, email: user.email, role: user.role }
