@@ -1,8 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
-
-const BACKEND_URL = 'http://localhost:8080';
+import { BACKEND_URL } from '../../config';
 
 const Login = () => {
   const [username, setUsername] = useState('');

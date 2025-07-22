@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config';
 
 export const UserContext = createContext();
 
@@ -8,7 +9,7 @@ export const UserProvider = ({ children }) => {
 
   // Check if user is logged in on mount
   useEffect(() => {
-    fetch('http://localhost:8080/api/current-user', { credentials: 'include' })
+    fetch(`${BACKEND_URL}/api/current-user`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.user) setUser(data.user);

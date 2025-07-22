@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BACKEND_URL } from '../config';
 
 const ReviewForm = ({ listingId, onReviewAdded }) => {
   const [rating, setRating] = useState(1);
@@ -11,7 +12,7 @@ const ReviewForm = ({ listingId, onReviewAdded }) => {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/listings/${listingId}/reviews`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ review: { rating, comment } }) });
+      const res = await fetch(`${BACKEND_URL}/api/listings/${listingId}/reviews`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ review: { rating, comment } }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to add review');
       setRating(1);

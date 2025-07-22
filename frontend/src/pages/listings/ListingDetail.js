@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import ReviewForm from '../../components/ReviewForm';
 import MapboxMap from '../../components/MapboxMap';
+import { BACKEND_URL } from '../../config';
 // Remove Stripe imports
 // import { loadStripe } from '@stripe/stripe-js';
 // import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -50,7 +51,7 @@ function BookingForm({ listing, user, onBookingSuccess }) {
       return;
     }
     // 2. Create order on backend
-    const res = await fetch('http://localhost:8080/api/bookings/orders', {
+    const res = await fetch(`${BACKEND_URL}/api/bookings/orders`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -72,7 +73,7 @@ function BookingForm({ listing, user, onBookingSuccess }) {
       order_id: data.orderId,
       handler: async function (response) {
         // 4. Verify payment and create booking
-        const verifyRes = await fetch('http://localhost:8080/api/bookings/verify', {
+        const verifyRes = await fetch(`${BACKEND_URL}/api/bookings/verify`, {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
@@ -146,7 +147,7 @@ const ListingDetail = () => {
   const [editError, setEditError] = useState(null);
 
   const fetchListing = () => {
-    fetch(`http://localhost:8080/api/listings/${id}`, { credentials: 'include' })
+    fetch(`${BACKEND_URL}/api/listings/${id}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setListing(data.listing);
@@ -166,7 +167,7 @@ const ListingDetail = () => {
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this listing?')) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/listings/${id}`, { method: 'DELETE', credentials: 'include' });
+      const res = await fetch(`${BACKEND_URL}/api/listings/${id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('Failed to delete listing');
       navigate('/listings');
     } catch (err) {
@@ -177,7 +178,7 @@ const ListingDetail = () => {
   const handleDeleteReview = async (reviewId) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/listings/${id}/reviews/${reviewId}`, { method: 'DELETE', credentials: 'include' });
+      const res = await fetch(`${BACKEND_URL}/api/listings/${id}/reviews/${reviewId}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('Failed to delete review');
       fetchListing();
     } catch (err) {
@@ -189,7 +190,7 @@ const ListingDetail = () => {
   const handleAdminDeleteReview = async (reviewId) => {
     if (!window.confirm('Are you sure you want to delete this review as admin?')) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/users/reviews/${reviewId}`, { method: 'DELETE', credentials: 'include' });
+      const res = await fetch(`${BACKEND_URL}/api/users/reviews/${reviewId}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('Failed to delete review');
       fetchListing();
     } catch (err) {
@@ -207,7 +208,7 @@ const ListingDetail = () => {
   const handleSaveEditReview = async (review) => {
     setEditError(null);
     try {
-      const res = await fetch(`http://localhost:8080/api/listings/${id}/reviews/${review._id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/listings/${id}/reviews/${review._id}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

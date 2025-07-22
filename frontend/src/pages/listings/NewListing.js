@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
+import { BACKEND_URL } from '../../config';
 
 const NewListing = () => {
   const { user } = useContext(UserContext);
@@ -32,7 +33,7 @@ const NewListing = () => {
     for (let key in form) formData.append(`listing[${key}]`, form[key]);
     if (image) formData.append('image', image);
     try {
-      const res = await fetch('http://localhost:8080/api/listings', { method: 'POST', credentials: 'include', body: formData });
+      const res = await fetch(`${BACKEND_URL}/api/listings`, { method: 'POST', credentials: 'include', body: formData });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to create listing');
       navigate('/listings');

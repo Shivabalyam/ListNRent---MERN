@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
+import { BACKEND_URL } from '../../config';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
@@ -14,7 +15,7 @@ const Signup = () => {
     e.preventDefault();
     setError(null);
     try {
-      const res = await fetch('http://localhost:8080/api/users/signup', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
+      const res = await fetch(`${BACKEND_URL}/api/users/signup`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Signup failed');
       setUserContext(data.user); // Update user context

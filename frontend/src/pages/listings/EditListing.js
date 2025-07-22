@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
+import { BACKEND_URL } from '../../config';
 
 const EditListing = () => {
   const { user } = useContext(UserContext);
@@ -18,7 +19,7 @@ const EditListing = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/listings/${id}`, { credentials: 'include' })
+    fetch(`${BACKEND_URL}/api/listings/${id}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (!data.listing) throw new Error('Listing not found');
@@ -57,7 +58,7 @@ const EditListing = () => {
     for (let key in form) formData.append(`listing[${key}]`, form[key]);
     if (image) formData.append('image', image);
     try {
-      const res = await fetch(`http://localhost:8080/api/listings/${id}`, { method: 'PUT', credentials: 'include', body: formData });
+      const res = await fetch(`${BACKEND_URL}/api/listings/${id}`, { method: 'PUT', credentials: 'include', body: formData });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to update listing');
       navigate(`/listings/${id}`);

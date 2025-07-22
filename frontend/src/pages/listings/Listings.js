@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ListingCard from '../../components/ListingCard';
 import './Listings.css';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { BACKEND_URL } from '../../config';
 
 const Listings = () => {
   const [listings, setListings] = useState([]);
@@ -33,7 +34,7 @@ const Listings = () => {
       ...(filters.location && { location: filters.location }),
       ...(filters.sort && { sort: filters.sort })
     });
-    fetch(`http://localhost:8080/api/listings?${params.toString()}`, { credentials: 'include' })
+    fetch(`${BACKEND_URL}/api/listings?${params.toString()}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (append) {

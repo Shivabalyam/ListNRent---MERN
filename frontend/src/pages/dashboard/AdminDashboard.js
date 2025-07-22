@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext.js';
-
-const BACKEND_URL = 'http://localhost:8080';
+import { BACKEND_URL } from '../../config';
 
 const AdminDashboard = () => {
   const { user } = useContext(UserContext);

@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
-
-const BACKEND_URL = 'http://localhost:8080';
+import { BACKEND_URL } from '../../config';
 
 const UserDashboard = () => {
   const { user, setUser } = useContext(UserContext);
