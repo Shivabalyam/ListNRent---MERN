@@ -92,24 +92,16 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-light bg-light border-bottom sticky-top">
       <div className="container-fluid">
-        <Link className="navbar-brand d-flex align-items-center" to="/listings">
-          <i className="fa-solid fa-compass" style={{ color: 'var(--primary)', fontSize: '2rem', marginRight: '0.75rem' }}></i>
-          <span style={{ fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', color: 'var(--primary)' }}>Wanderlust</span>
-        </Link>
-        <button className="mobile-hamburger" aria-label="Open menu" onClick={() => setMobileMenuOpen(true)}>
-          <span style={{ fontSize: '2rem', lineHeight: 1 }}>&#9776;</span>
-        </button>
-        <div className="navbar-desktop">
-          <div className="navbar-nav">
-            <Link className="nav-link" to="/listings">Explore</Link>
-          </div>
-          <div className="navbar-nav ms-auto">
-            <form className="d-flex" role="search" onSubmit={handleSearch}>
-              <input className="form-control me-2 search-inp" type="search" placeholder="Search destinations" value={search} onChange={e => setSearch(e.target.value)} />
-              <button className="btn btn-search" type="submit"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
-            </form>
-          </div>
-          <div className="navbar-nav ms-auto">
+        <div className="navbar-desktop-row">
+          <Link className="navbar-brand d-flex align-items-center" to="/listings">
+            <i className="fa-solid fa-compass" style={{ color: 'var(--primary)', fontSize: '2rem', marginRight: '0.75rem' }}></i>
+            <span style={{ fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', color: 'var(--primary)' }}>Wanderlust</span>
+          </Link>
+          <form className="d-flex desktop-search-form" role="search" onSubmit={handleSearch}>
+            <input className="form-control me-2 search-inp" type="search" placeholder="Search destinations" value={search} onChange={e => setSearch(e.target.value)} />
+            <button className="btn btn-search" type="submit"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
+          </form>
+          <div className="navbar-nav desktop-auth-right">
             {user && user.role === 'admin' && (
               <Link className="nav-link" to="/listings/new">Add New Listing</Link>
             )}
@@ -167,7 +159,6 @@ const Navbar = () => {
             )}
           </div>
         </div>
-        {mobileMenuOpen && mobileMenu}
       </div>
     </nav>
   );
