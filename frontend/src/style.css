@@ -269,6 +269,7 @@ label {
   }
   .navbar {
     font-size: 1rem;
+    padding: 0.5rem 0.25rem;
   }
   .show-img {
     height: 120px;
@@ -292,5 +293,25 @@ label {
   #map {
     width: 100vw;
     height: 200px;
+  }
+  /* Touch target improvements */
+  button, .btn, .btn-primary, .nav-link, a {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  /* Font size for readability */
+  body, input, select, textarea {
+    font-size: 16px;
+  }
+  /* Extra spacing for forms */
+  input, select, textarea {
+    margin-bottom: 1rem;
+  }
+  /* Smooth scrolling for tables/grids */
+  .row, .listings-grid, .listings-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 } 
