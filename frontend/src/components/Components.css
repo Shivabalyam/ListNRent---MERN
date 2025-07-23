@@ -354,6 +354,78 @@
   letter-spacing: 0.5px;
 }
 
+/* --- Mobile Navbar Styles --- */
+.mobile-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;
+  z-index: 1201;
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1200;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mobile-menu {
+  background: #fff;
+  width: 85vw;
+  max-width: 340px;
+  height: 100vh;
+  box-shadow: -2px 0 16px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.25rem;
+  animation: slideInMenu 0.25s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+
+@keyframes slideInMenu {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.mobile-menu-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #222;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+
+.mobile-menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mobile-auth-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.mobile-search {
+  margin: 1rem 0;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .listing-card {
@@ -409,6 +481,17 @@
   .stat-card .stat-number {
     font-size: 1.5rem;
   }
+  .navbar-desktop {
+    display: none !important;
+  }
+  .mobile-hamburger {
+    display: block;
+  }
+}
+@media (min-width: 769px) {
+  .mobile-hamburger, .mobile-menu-overlay {
+    display: none !important;
+  }
 }
 
 @media (max-width: 576px) {
@@ -461,5 +544,18 @@
     width: 100%;
     text-align: center;
     padding: 1rem;
+  }
+  .truncate-title {
+    font-size: 1rem;
+  }
+  .card-meta-row {
+    font-size: 0.95rem;
+  }
+  .listing-link, .nav-link, .btn {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  .responsive-card-img {
+    height: 110px;
   }
 } 

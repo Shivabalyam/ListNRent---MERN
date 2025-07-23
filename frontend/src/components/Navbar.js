@@ -7,10 +7,9 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  // Add state for search input
   const [search, setSearch] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -27,31 +26,80 @@ const Navbar = () => {
     };
   }, [dropdownOpen]);
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const handleLogout = async () => {
     await fetch('/api/users/logout', { method: 'POST', credentials: 'include' });
     setUser(null);
     navigate('/');
   };
 
-  // Handle search submit
   const handleSearch = (e) => {
     e.preventDefault();
     if (search.trim()) {
       navigate(`/listings?location=${encodeURIComponent(search.trim())}`);
+      setMobileMenuOpen(false);
     }
   };
 
+  // Mobile menu content
+  const mobileMenu = (
+    <div className="mobile-menu-overlay" onClick={() => setMobileMenuOpen(false)}>
+      <nav className="mobile-menu" onClick={e => e.stopPropagation()}>
+        <div className="mobile-menu-header">
+          <Link className="navbar-brand d-flex align-items-center" to="/listings" onClick={() => setMobileMenuOpen(false)}>
+            <i className="fa-solid fa-compass" style={{ color: 'var(--primary)', fontSize: '1.5rem', marginRight: '0.5rem' }}></i>
+            <span style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.5px', color: 'var(--primary)' }}>Wanderlust</span>
+          </Link>
+          <button className="mobile-menu-close" aria-label="Close menu" onClick={() => setMobileMenuOpen(false)}>&times;</button>
+        </div>
+        <div className="mobile-menu-links">
+          <Link className="nav-link" to="/listings" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
+          <form className="d-flex mobile-search" role="search" onSubmit={handleSearch}>
+            <input className="form-control search-inp" type="search" placeholder="Search destinations" value={search} onChange={e => setSearch(e.target.value)} />
+            <button className="btn btn-search" type="submit"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
+          </form>
+          {user && user.role === 'admin' && (
+            <Link className="nav-link" to="/listings/new" onClick={() => setMobileMenuOpen(false)}>Add New Listing</Link>
+          )}
+          {!user ? (
+            <div className="mobile-auth-links">
+              <Link className="nav-link" to="/signup" onClick={() => setMobileMenuOpen(false)}><b>signup</b></Link>
+              <Link className="nav-link" to="/login" onClick={() => setMobileMenuOpen(false)}><b>login</b></Link>
+            </div>
+          ) : (
+            <div className="mobile-auth-links">
+              <button className="nav-link" onClick={() => { setMobileMenuOpen(false); navigate('/profile'); }}>View Profile</button>
+              <button className="nav-link" onClick={() => { setMobileMenuOpen(false); navigate(user.role === 'admin' ? '/admin/dashboard' : '/dashboard'); }}>Dashboard</button>
+              <button className="nav-link" onClick={() => { setMobileMenuOpen(false); navigate('/change-password'); }}>Change Password</button>
+              <button className="nav-link text-danger" onClick={() => { setMobileMenuOpen(false); handleLogout(); }}>Logout</button>
+            </div>
+          )}
+        </div>
+      </nav>
+    </div>
+  );
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom sticky-top">
+    <nav className="navbar navbar-light bg-light border-bottom sticky-top">
       <div className="container-fluid">
         <Link className="navbar-brand d-flex align-items-center" to="/listings">
           <i className="fa-solid fa-compass" style={{ color: 'var(--primary)', fontSize: '2rem', marginRight: '0.75rem' }}></i>
           <span style={{ fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', color: 'var(--primary)' }}>Wanderlust</span>
         </Link>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
-          <span className="navbar-toggler-icon"></span>
+        <button className="mobile-hamburger" aria-label="Open menu" onClick={() => setMobileMenuOpen(true)}>
+          <span style={{ fontSize: '2rem', lineHeight: 1 }}>&#9776;</span>
         </button>
-        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div className="navbar-desktop">
           <div className="navbar-nav">
             <Link className="nav-link" to="/listings">Explore</Link>
           </div>
@@ -62,7 +110,6 @@ const Navbar = () => {
             </form>
           </div>
           <div className="navbar-nav ms-auto">
-            {/* Only show Add New Listing for admin users */}
             {user && user.role === 'admin' && (
               <Link className="nav-link" to="/listings/new">Add New Listing</Link>
             )}
@@ -120,6 +167,7 @@ const Navbar = () => {
             )}
           </div>
         </div>
+        {mobileMenuOpen && mobileMenu}
       </div>
     </nav>
   );
