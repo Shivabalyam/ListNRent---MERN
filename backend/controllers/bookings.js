@@ -179,6 +179,16 @@ exports.cancelBooking = async (req, res) => {
     if (req.user.role !== 'admin' && booking.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({ error: 'Not authorized to cancel this booking' });
     }
+    // Restrict user cancellation to only before 24 hours of startDate
+    if (req.user.role !== 'admin') {
+      const now = new Date();
+      const startDate = new Date(booking.startDate);
+      const diffMs = startDate - now;
+      const diffHours = diffMs / (1000 * 60 * 60);
+      if (diffHours < 24) {
+        return res.status(400).json({ error: 'You can only cancel a booking more than 24 hours before the start date.' });
+      }
+    }
     booking.status = 'cancelled';
     await booking.save();
     res.json({ message: 'Booking cancelled', booking });

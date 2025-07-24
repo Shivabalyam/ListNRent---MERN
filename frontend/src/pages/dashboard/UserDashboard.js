@@ -49,14 +49,24 @@ const UserDashboard = () => {
     navigate('/');
   };
 
-  const handleCancelBooking = async (bookingId) => {
+  const handleCancelBooking = async (bookingId, startDate) => {
+    // Check if less than 24 hours remain before startDate
+    const now = new Date();
+    const start = new Date(startDate);
+    const diffMs = start - now;
+    const diffHours = diffMs / (1000 * 60 * 60);
+    if (diffHours < 24) {
+      alert('You can only cancel a booking more than 24 hours before the start date.');
+      return;
+    }
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
     const res = await fetch(`${BACKEND_URL}/api/bookings/${bookingId}`, {
       method: 'DELETE',
       credentials: 'include',
     });
+    const data = await res.json();
     if (res.ok) setBookings(bookings.map(b => b._id === bookingId ? { ...b, status: 'cancelled' } : b));
-    else alert('Failed to cancel booking.');
+    else alert(data.error || 'Failed to cancel booking.');
   };
 
   if (!user) return <div className="container mt-4"><h2>User Dashboard</h2><p>Loading...</p></div>;
@@ -114,8 +124,8 @@ const UserDashboard = () => {
                     <div className="mb-2">
                       <b>Status:</b> <span className={`badge ${b.status === 'paid' ? 'bg-success' : b.status === 'pending' ? 'bg-warning' : 'bg-secondary'}`}>{b.status}</span>
                     </div>
-                    {b.status !== 'cancelled' && (
-                      <button className="btn btn-outline-danger btn-sm" onClick={() => handleCancelBooking(b._id)}>Cancel Booking</button>
+                    {b.status !== 'cancelled' && (new Date(b.startDate) - new Date() > 24 * 60 * 60 * 1000) && (
+                      <button className="btn btn-outline-danger btn-sm" onClick={() => handleCancelBooking(b._id, b.startDate)}>Cancel Booking</button>
                     )}
                   </div>
                 </div>
