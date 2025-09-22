@@ -21,7 +21,9 @@ app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ---------- DATABASE CONNECTION ----------
 const dburl = process.env.ATLASDB_URL;
+
 async function main() {
     try {
         await mongoose.connect(dburl);
@@ -35,19 +37,24 @@ main();
 // ---------- CORS SETUP ----------
 const cors = require('cors');
 
+// Use env variable or fallback to your main Vercel deployment
 const FRONTEND_URL = process.env.FRONTEND_ORIGIN || 'https://list-n-rent-85m60xgjn-shivabalyams-projects.vercel.app';
 
-// Public routes (no credentials needed)
-app.use('/api/listings', cors({
+const corsOptionsPublic = {
     origin: FRONTEND_URL,
     credentials: false
-}));
+};
 
-// Authenticated routes (cookies or JWT)
-app.use(['/api/users', '/api/bookings', '/api/listings/:id/reviews'], cors({
+const corsOptionsAuth = {
     origin: FRONTEND_URL,
     credentials: true
-}));
+};
+
+// Apply CORS to public routes
+app.use('/api/listings', cors(corsOptionsPublic));
+
+// Apply CORS to authenticated routes
+app.use(['/api/users', '/api/bookings', '/api/listings/:id/reviews'], cors(corsOptionsAuth));
 
 // ---------- API ROUTES ----------
 app.use('/api/listings', listingsRouter);
