@@ -31,12 +31,14 @@ exports.createOrder = async (req, res) => {
     if (nights <= 0) return res.status(400).json({ error: 'Invalid date range' });
     const available = await isBookingAvailable(listingId, startDate, endDate);
     if (!available) return res.status(409).json({ error: 'Listing is not available for the selected dates.' });
-    const totalPrice = listing.price * nights;
+    const subtotal = listing.price * nights;
+    const platformFee = Math.round(subtotal * 0.10); // 10% fee
+    const totalPrice = subtotal + platformFee;
     const options = {
       amount: Math.round(totalPrice * 100), // in paise
       currency: 'INR',
       receipt: 'receipt_' + Date.now(),
-      notes: { listingId, userId: req.user._id, startDate, endDate, guests }
+      notes: { listingId, userId: req.user._id, startDate, endDate, guests, subtotal, platformFee }
     };
     const order = await razorpay.orders.create(options);
     res.json({ orderId: order.id, keyId: process.env.RAZORPAY_KEY_ID, amount: order.amount, currency: order.currency });
@@ -62,13 +64,17 @@ exports.verifyPayment = async (req, res) => {
     // Create booking
     const listing = await Listing.findById(listingId);
     const nights = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
-    const totalPrice = listing.price * nights;
+    const subtotal = listing.price * nights;
+    const platformFee = Math.round(subtotal * 0.10);
+    const totalPrice = subtotal + platformFee;
     const booking = new Booking({
       user: req.user._id,
       listing: listingId,
       startDate,
       endDate,
       guests,
+      subtotal,
+      platformFee,
       totalPrice,
       status: 'paid',
       paymentIntentId: razorpay_payment_id
@@ -117,13 +123,17 @@ exports.razorpayWebhook = async (req, res) => {
       if (!booking) {
         const listing = await Listing.findById(listingId);
         const nights = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
-        const totalPrice = listing.price * nights;
+        const subtotal = listing.price * nights;
+        const platformFee = Math.round(subtotal * 0.10);
+        const totalPrice = subtotal + platformFee;
         booking = new Booking({
           user: userId,
           listing: listingId,
           startDate,
           endDate,
           guests,
+          subtotal,
+          platformFee,
           totalPrice,
           status: 'paid',
           paymentIntentId: payment.id

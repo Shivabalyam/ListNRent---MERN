@@ -6,6 +6,9 @@ const bookingSchema = new mongoose.Schema({
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   guests: { type: Number, required: true },
+  // Pricing breakdown
+  subtotal: { type: Number },
+  platformFee: { type: Number },
   totalPrice: { type: Number, required: true },
   status: { type: String, enum: ['pending', 'paid', 'cancelled'], default: 'pending' },
   paymentIntentId: { type: String }, // For Stripe integration

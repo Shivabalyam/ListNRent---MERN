@@ -61,7 +61,7 @@ const Navbar = () => {
         <div className="mobile-menu-header">
           <Link className="navbar-brand d-flex align-items-center" to="/listings" onClick={() => setMobileMenuOpen(false)}>
             <i className="fa-solid fa-compass" style={{ color: 'var(--primary)', fontSize: '1.5rem', marginRight: '0.5rem' }}></i>
-            <span style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.5px', color: 'var(--primary)' }}>Wanderlust</span>
+            <span style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.5px', color: 'var(--primary)' }}>ListNRent</span>
           </Link>
           <button className="mobile-menu-close" aria-label="Close menu" onClick={() => setMobileMenuOpen(false)}>&times;</button>
         </div>
@@ -98,7 +98,7 @@ const Navbar = () => {
         <div className="navbar-desktop-row">
           <Link className="navbar-brand d-flex align-items-center" to="/listings">
             <i className="fa-solid fa-compass" style={{ color: 'var(--primary)', fontSize: '2rem', marginRight: '0.75rem' }}></i>
-            <span style={{ fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', color: 'var(--primary)' }}>Wanderlust</span>
+            <span style={{ fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', color: 'var(--primary)' }}>ListNRent</span>
           </Link>
           <form className="d-flex desktop-search-form" role="search" onSubmit={handleSearch}>
             <input className="form-control me-2 search-inp" type="search" placeholder="Search destinations" value={search} onChange={e => setSearch(e.target.value)} />

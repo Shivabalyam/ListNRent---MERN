@@ -33,10 +33,29 @@ app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public'))); // For serving images if needed
 const cors = require('cors');
-app.use(cors({
-  origin: ['https://list-n-rent.vercel.app', 'http://localhost:3000'],
-  credentials: true
-}));
+
+// Trust proxy so secure cookies work behind Render/Proxies
+app.set('trust proxy', 1);
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://list-n-rent.vercel.app',
+  process.env.FRONTEND_ORIGIN
+].filter(Boolean);
+
+const corsOptions = {
+  credentials: true,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.includes(origin) || /https:\/\/.*\.vercel\.app$/.test(origin);
+    callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+  },
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 
 

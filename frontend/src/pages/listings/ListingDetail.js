@@ -23,14 +23,22 @@ function BookingForm({ listing, user, onBookingSuccess }) {
   const [endDate, setEndDate] = useState('');
   const [guests, setGuests] = useState(1);
   const [price, setPrice] = useState(0);
+  const [subtotal, setSubtotal] = useState(0);
+  const [platformFee, setPlatformFee] = useState(0);
   const [step, setStep] = useState('form'); // 'form' | 'processing' | 'success'
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (startDate && endDate) {
       const nights = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
-      setPrice(nights > 0 ? nights * listing.price : 0);
+      const sub = nights > 0 ? nights * listing.price : 0;
+      const fee = Math.round(sub * 0.10);
+      setSubtotal(sub);
+      setPlatformFee(fee);
+      setPrice(sub + fee);
     } else {
+      setSubtotal(0);
+      setPlatformFee(0);
       setPrice(0);
     }
   }, [startDate, endDate, listing.price]);
@@ -124,6 +132,8 @@ function BookingForm({ listing, user, onBookingSuccess }) {
           <label>Guests: <input type="number" min="1" value={guests} onChange={e => setGuests(Number(e.target.value))} className="form-control" required /></label>
         </div>
         <div className="mb-2">
+          <div className="small text-muted">Subtotal: ₹{subtotal}</div>
+          <div className="small text-muted">Platform fee (10%): ₹{platformFee}</div>
           <b>Total Price: ₹{price}</b>
         </div>
         <button className="btn btn-primary" type="submit" disabled={price <= 0 || step === 'processing'}>
