@@ -4,9 +4,7 @@ import { UserContext } from '../../context/UserContext';
 import ReviewForm from '../../components/ReviewForm';
 import MapboxMap from '../../components/MapboxMap';
 import { BACKEND_URL } from '../../config';
-// Remove Stripe imports
-// import { loadStripe } from '@stripe/stripe-js';
-// import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
 
 function loadRazorpayScript(src) {
   return new Promise((resolve) => {

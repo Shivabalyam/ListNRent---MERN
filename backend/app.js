@@ -1,78 +1,66 @@
 require('dotenv').config();
 
-
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const path = require('path');
 const methodOverride = require('method-override');
-const ExpressError = require("./utils/ExpressError.js");
-
+const cookieParser = require('cookie-parser');
 
 const listingsRouter = require('./routes/listing.js');
 const reviewsRouter = require('./routes/review.js');
 const userRouter = require('./routes/user.js');
+const bookingRouter = require('./routes/booking.js'); // make sure this exists
 
-const cookieParser = require('cookie-parser');
+// Trust proxy so secure cookies work behind Render/Proxies
+app.set('trust proxy', 1);
+
 app.use(cookieParser());
-
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const dburl = process.env.ATLASDB_URL;
 async function main() {
     try {
         await mongoose.connect(dburl);
-        console.log(" Connected to MongoDB");
+        console.log("Connected to MongoDB");
     } catch (err) {
-        console.error(" MongoDB connection error:", err);
+        console.error("MongoDB connection error:", err);
     }
 }
 main();
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(methodOverride('_method'));
-app.use(express.static(path.join(__dirname, 'public'))); // For serving images if needed
+// ---------- CORS SETUP ----------
 const cors = require('cors');
 
-// Trust proxy so secure cookies work behind Render/Proxies
-app.set('trust proxy', 1);
+const FRONTEND_URL = process.env.FRONTEND_ORIGIN || 'https://list-n-rent-85m60xgjn-shivabalyams-projects.vercel.app';
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://list-n-rent.vercel.app',
-  process.env.FRONTEND_ORIGIN
-].filter(Boolean);
+// Public routes (no credentials needed)
+app.use('/api/listings', cors({
+    origin: FRONTEND_URL,
+    credentials: false
+}));
 
-const corsOptions = {
-  credentials: true,
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    const isAllowed = allowedOrigins.includes(origin) || /https:\/\/.*\.vercel\.app$/.test(origin);
-    callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
-  },
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-};
+// Authenticated routes (cookies or JWT)
+app.use(['/api/users', '/api/bookings', '/api/listings/:id/reviews'], cors({
+    origin: FRONTEND_URL,
+    credentials: true
+}));
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-
-
-
-// API routes
+// ---------- API ROUTES ----------
 app.use('/api/listings', listingsRouter);
 app.use('/api/listings/:id/reviews', reviewsRouter);
 app.use('/api/users', userRouter);
-app.use('/api/bookings', require('./routes/booking.js'));
+app.use('/api/bookings', bookingRouter);
 
-
-// Catch-all route for 404 errors
+// ---------- 404 HANDLER ----------
 app.use((req, res, next) => {
     res.status(404).json({ error: "Page Not Found" });
 });
 
-
-// Error handling middleware (returns JSON)
+// ---------- ERROR HANDLER ----------
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || "Something went wrong!";
@@ -80,10 +68,8 @@ app.use((err, req, res, next) => {
     res.status(statusCode).json({ error: message });
 });
 
-
-
-app.listen(8080, () => {
-    console.log('Server is running on port 8080');
+// ---------- START SERVER ----------
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
-
-

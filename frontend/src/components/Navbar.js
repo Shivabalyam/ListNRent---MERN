@@ -38,7 +38,7 @@ const Navbar = () => {
   }, [mobileMenuOpen]);
 
   const handleLogout = async () => {
-    await fetch('/api/users/logout', { method: 'POST', credentials: 'include' });
+    await fetch(`${window.location.origin.includes('localhost') ? 'http://localhost:8080' : 'https://listnrentals-adlu.onrender.com'}/api/users/logout`, { method: 'POST', credentials: 'include' });
     setUser(null);
     navigate('/');
   };

@@ -36,7 +36,7 @@ const Listings = () => {
       ...(filters.search && { search: filters.search }),
       ...(filters.sort && { sort: filters.sort })
     });
-    fetch(`${BACKEND_URL}/api/listings?${params.toString()}`, { credentials: 'include' })
+    fetch(`${BACKEND_URL}/api/listings?${params.toString()}`)
       .then(res => res.json())
       .then(data => {
         if (append) {
