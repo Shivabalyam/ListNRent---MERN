@@ -4,6 +4,8 @@ const wrapAsync = require("../utils/wrapAsync.js");
 const userController = require('../controllers/users.js');
 const { isLoggedIn, checkAdmin, checkUser } = require('../middleware.js');
 const Review = require('../models/review');
+const Listing = require('../models/listing');
+const Booking = require('../models/booking');
 
 // Signup
 router.post('/signup', wrapAsync(userController.signup));
@@ -48,6 +50,43 @@ router.get('/my-reviews', isLoggedIn, async (req, res) => {
     .sort({ createdAt: -1 })
     .populate('listing');
   res.json({ reviews });
+});
+
+// Get listings owned by current user with earnings
+router.get('/my-listings', isLoggedIn, async (req, res) => {
+  const listings = await Listing.find({ owner: req.user._id })
+    .populate('reviews')
+    .lean();
+
+  const listingIds = listings.map(l => l._id);
+  // Sum earnings from paid bookings for each listing
+  const bookings = await Booking.aggregate([
+    { $match: { listing: { $in: listingIds }, status: 'paid' } },
+    { $group: { _id: '$listing', earnings: { $sum: '$totalPrice' }, bookingsCount: { $sum: 1 } } }
+  ]);
+  const earningsMap = new Map(bookings.map(b => [String(b._id), { earnings: b.earnings, bookingsCount: b.bookingsCount }]));
+
+  const result = listings.map(l => {
+    const key = String(l._id);
+    const stats = earningsMap.get(key) || { earnings: 0, bookingsCount: 0 };
+    const avgRating = (l.reviews && l.reviews.length)
+      ? l.reviews.reduce((s, r) => s + (r.rating || 0), 0) / l.reviews.length
+      : 0;
+    return {
+      ...l,
+      avgRating,
+      earnings: stats.earnings,
+      bookingsCount: stats.bookingsCount,
+    };
+  });
+
+  const totals = result.reduce((acc, l) => {
+    acc.totalEarnings += l.earnings || 0;
+    acc.totalBookings += l.bookingsCount || 0;
+    return acc;
+  }, { totalEarnings: 0, totalBookings: 0 });
+
+  res.json({ listings: result, totals });
 });
 
 // Admin: Get all reviews

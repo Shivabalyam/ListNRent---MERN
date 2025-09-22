@@ -20,6 +20,7 @@ const Listings = () => {
   const [minRating, setMinRating] = useState('');
   const [sort, setSort] = useState('');
   const [location, setLocation] = useState('');
+  const [search, setSearch] = useState('');
 
   // Fetch listings (append if loading more)
   const fetchListings = (pageNum = 1, filters = {}, append = false) => {
@@ -32,6 +33,7 @@ const Listings = () => {
       ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
       ...(filters.minRating && { minRating: filters.minRating }),
       ...(filters.location && { location: filters.location }),
+      ...(filters.search && { search: filters.search }),
       ...(filters.sort && { sort: filters.sort })
     });
     fetch(`${BACKEND_URL}/api/listings?${params.toString()}`, { credentials: 'include' })
@@ -76,9 +78,9 @@ const Listings = () => {
   // Refetch listings when filters/sort/location change (reset to first page)
   useEffect(() => {
     setPage(1);
-    fetchListings(1, { minPrice, maxPrice, minRating, location, sort }, false);
+    fetchListings(1, { minPrice, maxPrice, minRating, location, sort, search }, false);
     // eslint-disable-next-line
-  }, [minPrice, maxPrice, minRating, location, sort]);
+  }, [minPrice, maxPrice, minRating, location, sort, search]);
 
   const locationHook = useLocation();
   const navigate = useNavigate();
@@ -89,10 +91,12 @@ const Listings = () => {
     return params.get(param) || '';
   }
 
-  // On mount and whenever the URL changes, set location filter from query param if present
+  // On mount and whenever the URL changes, set filters from query params if present
   useEffect(() => {
     const loc = getQueryParam('location');
     setLocation(loc); // Always set, even if empty
+    const q = getQueryParam('search');
+    setSearch(q);
     // eslint-disable-next-line
   }, [locationHook.search]);
 
@@ -111,6 +115,21 @@ const Listings = () => {
     }
     // eslint-disable-next-line
   }, [location]);
+
+  // Keep URL in sync when search changes
+  useEffect(() => {
+    const q = getQueryParam('search');
+    const params = new URLSearchParams(locationHook.search);
+    if (search && search !== q) {
+      params.set('search', search);
+      navigate({ search: params.toString() }, { replace: true });
+    }
+    if (!search && q) {
+      params.delete('search');
+      navigate({ search: params.toString() }, { replace: true });
+    }
+    // eslint-disable-next-line
+  }, [search]);
 
   return (
     <div>

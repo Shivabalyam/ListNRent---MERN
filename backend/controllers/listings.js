@@ -16,6 +16,15 @@ module.exports.index = async (req, res) => {
     if (req.query.location) {
       filter.location = { $regex: `^${req.query.location}$`, $options: 'i' };
     }
+    // Text search across title/location/country (partial, case-insensitive)
+    if (req.query.search && String(req.query.search).trim().length > 0) {
+      const q = String(req.query.search).trim();
+      filter.$or = [
+        { title: { $regex: q, $options: 'i' } },
+        { location: { $regex: q, $options: 'i' } },
+        { country: { $regex: q, $options: 'i' } },
+      ];
+    }
 
     // Sorting
     let sort = {};

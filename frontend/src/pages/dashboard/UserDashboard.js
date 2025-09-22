@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { BACKEND_URL } from '../../config';
+import ListingCard from '../../components/ListingCard';
 
 const UserDashboard = () => {
   const { user, setUser } = useContext(UserContext);
@@ -9,6 +10,9 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
+  const [myListings, setMyListings] = useState([]);
+  const [loadingMyListings, setLoadingMyListings] = useState(true);
+  const [listingTotals, setListingTotals] = useState({ totalEarnings: 0, totalBookings: 0 });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,6 +45,25 @@ const UserDashboard = () => {
       }
     };
     fetchBookings();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchMyListings = async () => {
+      if (!user) return;
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/users/my-listings`, { credentials: 'include' });
+        const data = await res.json();
+        if (res.ok) {
+          setMyListings(data.listings || []);
+          setListingTotals(data.totals || { totalEarnings: 0, totalBookings: 0 });
+        }
+      } catch (err) {
+        // Optionally handle error
+      } finally {
+        setLoadingMyListings(false);
+      }
+    };
+    fetchMyListings();
   }, [user]);
 
   const handleLogout = async () => {
@@ -76,7 +99,6 @@ const UserDashboard = () => {
       <div className="card p-4 mb-3" style={{ maxWidth: 500 }}>
         <p><b>Username:</b> {user.username}</p>
         <p><b>Email:</b> {user.email}</p>
-        <p><b>Role:</b> {user.role}</p>
         <p><b>Number of reviews:</b> {loading ? 'Loading...' : reviews.length}</p>
       </div>
       <div className="mb-4">
@@ -98,6 +120,39 @@ const UserDashboard = () => {
               </div>
             ))}
           </div>
+        )}
+      </div>
+      <div className="mb-4">
+        <h5>Your Listings</h5>
+        {loadingMyListings ? <p>Loading your listings...</p> : (
+          myListings.length === 0 ? (
+            <div>
+              <p>You haven't posted any listings yet.</p>
+              <Link to="/listings/new" className="btn btn-outline-primary btn-sm">Add Your First Listing</Link>
+            </div>
+          ) : (
+            <>
+              <div className="card p-3 mb-3" style={{ maxWidth: 600 }}>
+                <div className="d-flex gap-4 flex-wrap">
+                  <div><b>Total Listings:</b> {myListings.length}</div>
+                  <div><b>Total Bookings:</b> {listingTotals.totalBookings}</div>
+                  <div><b>Total Earnings:</b> ₹{listingTotals.totalEarnings?.toLocaleString('en-IN')}</div>
+                </div>
+              </div>
+              <div className="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-2">
+                {myListings.map(l => (
+                  <div key={l._id} className="mb-3">
+                    <ListingCard listing={l} />
+                    <div className="mt-2 small text-muted">
+                      <span className="me-3"><b>Avg Rating:</b> {Math.round((l.avgRating || 0) * 10) / 10}</span>
+                      <span className="me-3"><b>Bookings:</b> {l.bookingsCount || 0}</span>
+                      <span><b>Earnings:</b> ₹{(l.earnings || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )
         )}
       </div>
       <div className="mb-4">

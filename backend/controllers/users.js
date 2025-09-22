@@ -5,6 +5,15 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
+function getCookieOptions(req) {
+  const origin = req.headers.origin || '';
+  const isLocal = origin.includes('localhost:3000') || process.env.NODE_ENV !== 'production';
+  if (isLocal) {
+    return { httpOnly: true, sameSite: 'lax', secure: false };
+  }
+  return { httpOnly: true, sameSite: 'none', secure: true };
+}
+
 function createToken(user) {
   return jwt.sign(
     { _id: user._id, username: user.username, email: user.email, role: user.role },
@@ -30,7 +39,7 @@ module.exports.signup = async (req, res) => {
     const user = new User({ username, email, password }); // role not settable from frontend
     await user.save();
     const token = createToken(user);
-    res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
+    res.cookie('token', token, getCookieOptions(req));
     res.status(201).json({
       message: 'Signup successful',
       user: { _id: user._id, username, email, role: user.role }
@@ -62,7 +71,7 @@ module.exports.login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials (password mismatch)' });
     }
     const token = createToken(user);
-    res.cookie('token', token, { httpOnly: true, sameSite: 'none', secure: true });
+    res.cookie('token', token, getCookieOptions(req));
     res.json({
       message: 'Login successful',
       user: { _id: user._id, username: user.username, email: user.email, role: user.role }

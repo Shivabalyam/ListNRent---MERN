@@ -45,10 +45,13 @@ const Navbar = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (search.trim()) {
-      navigate(`/listings?location=${encodeURIComponent(search.trim())}`);
-      setMobileMenuOpen(false);
+    const q = search.trim();
+    if (q) {
+      navigate(`/listings?search=${encodeURIComponent(q)}`);
+    } else {
+      navigate('/listings');
     }
+    setMobileMenuOpen(false);
   };
 
   // Mobile menu content
@@ -68,7 +71,7 @@ const Navbar = () => {
             <input className="form-control search-inp" type="search" placeholder="Search destinations" value={search} onChange={e => setSearch(e.target.value)} />
             <button className="btn btn-search" type="submit"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
           </form>
-          {user && user.role === 'admin' && (
+          {user && (
             <Link className="nav-link" to="/listings/new" onClick={() => setMobileMenuOpen(false)}>Add New Listing</Link>
           )}
           {!user ? (
@@ -102,7 +105,7 @@ const Navbar = () => {
             <button className="btn btn-search" type="submit"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
           </form>
           <div className="navbar-nav desktop-auth-right">
-            {user && user.role === 'admin' && (
+            {user && (
               <Link className="nav-link" to="/listings/new">Add New Listing</Link>
             )}
             {!user ? (

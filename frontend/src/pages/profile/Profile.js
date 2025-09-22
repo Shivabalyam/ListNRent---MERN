@@ -10,7 +10,6 @@ const Profile = () => {
       <div className="card p-4" style={{ maxWidth: 400 }}>
         <p><b>Username:</b> {user.username}</p>
         <p><b>Email:</b> {user.email}</p>
-        <p><b>Role:</b> {user.role}</p>
       </div>
     </div>
   );
