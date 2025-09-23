@@ -38,8 +38,8 @@ main();
 const cors = require('cors');
 
 const allowedOrigins = [
-    'https://list-n-rent-85m60xgjn-shivabalyams-projects.vercel.app',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://list-n-rent.vercel.app'
 ];
 
 const corsOptionsPublic = {
