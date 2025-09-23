@@ -37,16 +37,18 @@ main();
 // ---------- CORS SETUP ----------
 const cors = require('cors');
 
-// Use env variable or fallback to your main Vercel deployment
-const FRONTEND_URL = process.env.FRONTEND_ORIGIN || 'https://list-n-rent-85m60xgjn-shivabalyams-projects.vercel.app';
+const allowedOrigins = [
+    'https://list-n-rent-85m60xgjn-shivabalyams-projects.vercel.app',
+    'http://localhost:3000'
+];
 
 const corsOptionsPublic = {
-    origin: FRONTEND_URL,
-    credentials: false
+    origin: allowedOrigins,
+    credentials: true
 };
 
 const corsOptionsAuth = {
-    origin: FRONTEND_URL,
+    origin: allowedOrigins,
     credentials: true
 };
 
@@ -55,12 +57,22 @@ app.use('/api/listings', cors(corsOptionsPublic));
 
 // Apply CORS to authenticated routes
 app.use(['/api/users', '/api/bookings', '/api/listings/:id/reviews'], cors(corsOptionsAuth));
+app.use(['/api/current-user'], cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
 
 // ---------- API ROUTES ----------
 app.use('/api/listings', listingsRouter);
 app.use('/api/listings/:id/reviews', reviewsRouter);
 app.use('/api/users', userRouter);
 app.use('/api/bookings', bookingRouter);
+
+// ---------- CURRENT USER ENDPOINT ----------
+app.get('/api/current-user', (req, res) => {
+    // Replace with your actual user logic if needed
+    res.json({ user: null });
+});
 
 // ---------- 404 HANDLER ----------
 app.use((req, res, next) => {
